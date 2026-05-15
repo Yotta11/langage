@@ -1,0 +1,4 @@
+asm_fast.gc
+asm_fast.gc.debug.stseg
+asm_fast.gc.decldebug.stseg
+hlc.gc

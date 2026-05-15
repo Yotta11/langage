@@ -1,0 +1,940 @@
+%============================================================
+% presentation.tex
+% Présentation Beamer : Tri Bitonique & Minage Blockchain en Mercury
+% Compiler : pdflatex presentation.tex (2 passes)
+%============================================================
+\documentclass[aspectratio=169,12pt]{beamer}
+
+% ── Thème ───────────────────────────────────────────────────
+\usetheme{Madrid}
+\usecolortheme{default}
+\usefonttheme{professionalfonts}
+
+% ── Packages ────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multicol}
+\usepackage{fontawesome5}
+\usepackage{tcolorbox}
+\usepackage{array}
+
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,arrows,positioning,calc,shadows,
+                decorations.pathmorphing,fit,backgrounds}
+\tcbuselibrary{skins}
+
+% ── Palette de couleurs ─────────────────────────────────────
+\definecolor{MercuryBlue}{RGB}{13,71,161}
+\definecolor{MercuryCyan}{RGB}{0,131,143}
+\definecolor{BlockGreen}{RGB}{27,94,32}
+\definecolor{BlockOrange}{RGB}{230,81,0}
+\definecolor{LightBlue}{RGB}{227,242,253}
+\definecolor{LightGreen}{RGB}{232,245,233}
+\definecolor{LightOrange}{RGB}{255,243,224}
+\definecolor{CodeBg}{RGB}{245,245,245}
+\definecolor{KeywordColor}{RGB}{13,71,161}
+\definecolor{CommentColor}{RGB}{56,142,60}
+\definecolor{StringColor}{RGB}{183,28,28}
+\definecolor{DarkGray}{RGB}{33,33,33}
+
+% ── Couleurs Beamer personnalisées ───────────────────────────
+\setbeamercolor{palette primary}{bg=MercuryBlue, fg=white}
+\setbeamercolor{palette secondary}{bg=MercuryCyan, fg=white}
+\setbeamercolor{palette tertiary}{bg=MercuryBlue!80, fg=white}
+\setbeamercolor{palette quaternary}{bg=MercuryBlue, fg=white}
+\setbeamercolor{structure}{fg=MercuryBlue}
+\setbeamercolor{section in toc}{fg=MercuryBlue}
+\setbeamercolor{alerted text}{fg=BlockOrange}
+\setbeamercolor{block title}{bg=MercuryBlue, fg=white}
+\setbeamercolor{block body}{bg=LightBlue}
+\setbeamercolor{block title alerted}{bg=BlockOrange, fg=white}
+\setbeamercolor{block body alerted}{bg=LightOrange}
+\setbeamercolor{block title example}{bg=BlockGreen, fg=white}
+\setbeamercolor{block body example}{bg=LightGreen}
+\setbeamercolor{frametitle}{bg=MercuryBlue, fg=white}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{subtitle}{fg=MercuryCyan!30}
+\setbeamercolor{author}{fg=white}
+\setbeamercolor{date}{fg=white!80}
+\setbeamercolor{institute}{fg=white!90}
+\setbeamercolor{footline}{bg=MercuryBlue!10, fg=MercuryBlue}
+\setbeamercolor{headline}{bg=MercuryBlue}
+
+% ── Polices Beamer ──────────────────────────────────────────
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+\setbeamerfont{block title}{size=\normalsize, series=\bfseries}
+\setbeamerfont{footline}{size=\tiny}
+
+% ── Pied de page personnalisé ────────────────────────────────
+\setbeamertemplate{footline}{
+  \leavevmode
+  \hbox{
+    \begin{beamercolorbox}[wd=0.33\paperwidth,ht=2.5ex,dp=1ex,center]
+        {footline}
+      \insertshortauthor
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[wd=0.34\paperwidth,ht=2.5ex,dp=1ex,center]
+        {footline}
+      \insertshorttitle
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[wd=0.33\paperwidth,ht=2.5ex,dp=1ex,right]
+        {footline}
+      \insertframenumber{}/\inserttotalframenumber\hspace*{2ex}
+    \end{beamercolorbox}
+  }
+}
+\setbeamertemplate{navigation symbols}{}
+
+% ── Bullets ─────────────────────────────────────────────────
+\setbeamertemplate{itemize item}{\color{MercuryBlue}\faAngleRight}
+\setbeamertemplate{itemize subitem}{\color{MercuryCyan}\faAngleDoubleRight}
+\setbeamertemplate{enumerate item}{\color{MercuryBlue}\textbf{\insertenumlabel.}}
+
+% ── Style listings Mercury ───────────────────────────────────
+\lstdefinelanguage{Mercury}{
+  morekeywords={module,interface,implementation,import_module,
+                pred,func,type,inst,mode,det,semidet,nondet,
+                multi,is,if,then,else,true,fail,not,
+                in,out,di,uo,int,float,char,string,bool,
+                list,io,yes,no},
+  sensitive=true,
+  morecomment=[l]{\%},
+  morestring=[b]"
+}
+
+\lstset{
+  language=Mercury,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{KeywordColor}\bfseries,
+  commentstyle=\color{CommentColor}\itshape,
+  stringstyle=\color{StringColor},
+  numberstyle=\tiny\color{gray},
+  numbers=left, numbersep=5pt,
+  frame=single, framerule=1pt,
+  rulecolor=\color{MercuryBlue},
+  breaklines=true,
+  tabsize=2,
+  showstringspaces=false,
+  xleftmargin=12pt
+}
+
+% ── Commandes utiles ────────────────────────────────────────
+\newcommand{\mercury}{\textsc{Mercury}}
+\newcommand{\Oh}[1]{\mathcal{O}\!\left(#1\right)}
+\newcommand{\code}[1]{\texttt{\color{KeywordColor}#1}}
+
+% ── Méta-données ────────────────────────────────────────────
+\title[Tri Bitonique \& Blockchain en Mercury]{%
+  \faCode\quad Tri Bitonique \& Minage de Blockchain\\
+  \large Implémentation experte en \mercury}
+\subtitle{INF322 — Programmation Logique et Fonctionnelle}
+\author[INF322]{Cours INF322}
+\institute[UYI]{Université de Yaoundé I\\Département d'Informatique}
+\date{\today}
+
+%============================================================
+\begin{document}
+%============================================================
+
+%------------------------------------------------------------
+% DIAPOSITIVE TITRE
+%------------------------------------------------------------
+{
+\setbeamertemplate{footline}{}
+\setbeamertemplate{headline}{}
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[MercuryBlue] (current page.north west) rectangle
+       ([yshift=-0.55\paperheight]current page.north east);
+  \fill[MercuryCyan!20] (current page.south west) rectangle
+       ([yshift=0.15\paperheight]current page.south east);
+  \fill[white,opacity=0.05]
+       ([xshift=0.75\paperwidth,yshift=-0.3\paperheight]current page.north west)
+       circle (0.4\paperheight);
+  \fill[white,opacity=0.04]
+       ([xshift=0.1\paperwidth,yshift=-0.15\paperheight]current page.north west)
+       circle (0.2\paperheight);
+\end{tikzpicture}
+
+\vspace{0.5cm}
+\titlepage
+\end{frame}
+}
+
+%------------------------------------------------------------
+% PLAN
+%------------------------------------------------------------
+\begin{frame}{Plan de la présentation}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+%============================================================
+\section{Introduction à Mercury}
+%============================================================
+
+\begin{frame}{\faBook\quad Qu'est-ce que Mercury ?}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Définition}
+        \mercury{} est un langage \textbf{logique-fonctionnel pur}
+        développé à l'Université de Melbourne (1993).\\[0.3em]
+        Il combine :
+        \begin{itemize}
+          \item La logique de \textbf{Prolog}
+          \item Le typage de \textbf{Haskell}
+          \item Les performances de \textbf{C}
+        \end{itemize}
+      \end{block}
+      \vspace{0.3em}
+      \begin{alertblock}{Originalité}
+        Chaque prédicat déclare son \textbf{mode} et son
+        \textbf{déterminisme} — vérifiés à la \emph{compilation}.
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{exampleblock}{Structure de base}
+\begin{lstlisting}
+:- module hello.
+:- interface.
+:- import_module io.
+:- pred main(
+    io::di, io::uo) is det.
+
+:- implementation.
+main(!IO) :-
+  io.write_string(
+    "Bonjour Mercury!\n",
+    !IO).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faCogs\quad Concepts fondamentaux}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faCheckCircle\quad Modes}
+        \begin{tabular}{ll}
+          \code{in}  & paramètre d'entrée \\
+          \code{out} & paramètre de sortie \\
+          \code{di}  & entrée destructive (IO) \\
+          \code{uo}  & sortie unique (IO) \\
+        \end{tabular}
+      \end{block}
+      \vspace{0.4em}
+      \begin{block}{\faListOl\quad Déterminisme}
+        \begin{tabular}{ll}
+          \code{det}    & toujours 1 solution \\
+          \code{semidet}& 0 ou 1 solution \\
+          \code{nondet} & 0 à N solutions \\
+          \code{multi}  & 1 à N solutions \\
+        \end{tabular}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{\faCode\quad Exemple de déclaration}
+\begin{lstlisting}
+% Predicat deterministe
+:- pred tri(
+  list(int)::in,
+  list(int)::out) is det.
+
+% Predicat semi-deterministe
+:- pred trouve(
+  int::in,
+  list(int)::in) is semidet.
+
+% Fonction pure
+:- func double(int) = int.
+double(X) = X * 2.
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%============================================================
+\section{Tri Bitonique}
+%============================================================
+
+\begin{frame}{\faSortAmountDown\quad Qu'est-ce que le tri bitonique ?}
+  \begin{block}{Séquence bitonique}
+    Une séquence est \textbf{bitonique} si elle croît puis décroît
+    (ou peut s'y ramener par rotation) :
+    $$a_1 \leq \cdots \leq a_k \geq a_{k+1} \geq \cdots \geq a_n$$
+  \end{block}
+
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{\faCheckCircle\quad Avantages}
+        \begin{itemize}
+          \item \textbf{Parallélisable} : réseau de comparateurs
+          \item $\Oh{\log^2 n}$ étapes parallèles
+          \item Idéal pour \textbf{GPU / FPGA}
+          \item Implémentation régulière et prévisible
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{\faExclamationTriangle\quad Limites}
+        \begin{itemize}
+          \item $\Oh{n\log^2 n}$ séquentiel
+          \item Moins efficace que merge sort ($\Oh{n\log n}$)
+          \item Taille $n$ doit être une puissance de 2
+          \item Non stable
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faSortAmountDown\quad Algorithme — Phase 1 : Construction}
+  \begin{center}
+  \begin{tikzpicture}[scale=0.72]
+    % Fils horizontaux
+    \foreach \y in {0,1,2,3,4,5,6,7} {
+      \draw[gray!40, thick] (-0.3,\y) -- (10.5,\y);
+    }
+    % Valeurs initiales
+    \foreach \y/\v in {0/5,1/1,2/7,3/3,4/8,5/2,6/6,7/4} {
+      \node[left,font=\scriptsize] at (-0.3,\y) {$\v$};
+    }
+    % Étape 1 : paires
+    \node[above,font=\tiny,MercuryBlue] at (1.2,7.6) {\textbf{Étape 1}};
+    \foreach \ya/\yb in {0/1,2/3,4/5,6/7} {
+      \draw[MercuryBlue,very thick] (1.2,\ya)--(1.2,\yb);
+      \filldraw[MercuryBlue] (1.2,\ya) circle (3.5pt);
+      \filldraw[MercuryBlue] (1.2,\yb) circle (3.5pt);
+    }
+    % Étape 2
+    \node[above,font=\tiny,MercuryCyan] at (3,7.6) {\textbf{Étape 2}};
+    \foreach \ya/\yb in {0/3,1/2,4/7,5/6} {
+      \draw[MercuryCyan,very thick] (3,\ya)--(3,\yb);
+      \filldraw[MercuryCyan] (3,\ya) circle (3.5pt);
+      \filldraw[MercuryCyan] (3,\yb) circle (3.5pt);
+    }
+    \foreach \ya/\yb in {0/2,1/3,4/6,5/7} {
+      \draw[MercuryCyan!70,very thick] (4.2,\ya)--(4.2,\yb);
+      \filldraw[MercuryCyan!70] (4.2,\ya) circle (3.5pt);
+      \filldraw[MercuryCyan!70] (4.2,\yb) circle (3.5pt);
+    }
+    % Étape 3 : fusion
+    \node[above,font=\tiny,BlockGreen] at (7.2,7.6) {\textbf{Fusion bitonique}};
+    \foreach \ya/\yb in {0/7,1/6,2/5,3/4} {
+      \draw[BlockGreen,very thick] (6,\ya)--(6,\yb);
+      \filldraw[BlockGreen] (6,\ya) circle (3.5pt);
+      \filldraw[BlockGreen] (6,\yb) circle (3.5pt);
+    }
+    \foreach \ya/\yb in {0/3,1/2,4/7,5/6} {
+      \draw[BlockGreen!80,very thick] (7.5,\ya)--(7.5,\yb);
+      \filldraw[BlockGreen!80] (7.5,\ya) circle (3.5pt);
+      \filldraw[BlockGreen!80] (7.5,\yb) circle (3.5pt);
+    }
+    \foreach \ya/\yb in {0/1,2/3,4/5,6/7} {
+      \draw[BlockGreen!60,very thick] (9,\ya)--(9,\yb);
+      \filldraw[BlockGreen!60] (9,\ya) circle (3.5pt);
+      \filldraw[BlockGreen!60] (9,\yb) circle (3.5pt);
+    }
+    % Valeurs finales
+    \foreach \y/\v in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8} {
+      \node[right,font=\scriptsize\bfseries,BlockGreen] at (10.5,\y) {$\v$};
+    }
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-0.3em}
+  \begin{center}
+    \small Réseau de comparateurs pour $n=8$
+    \quad|\quad $\log_2(8)=3$ phases
+    \quad|\quad $\frac{8\times3\times4}{2}=48$ comparaisons
+  \end{center}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}[fragile]{\faCode\quad Implémentation Mercury — Cœur}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \begin{exampleblock}{Tri bitonique principal}
+\begin{lstlisting}
+:- pred bitonic_sort(
+  direction::in,
+  list(int)::in,
+  list(int)::out) is det.
+
+bitonic_sort(_, [], []).
+bitonic_sort(_, [X], [X]).
+bitonic_sort(Dir, List, Sorted) :-
+  length(List, N),
+  Half = N / 2,
+  split(List, Half, L, R),
+  % Phase 1 : sequence bitonique
+  bitonic_sort(ascending, L, SL),
+  bitonic_sort(descending,R, SR),
+  append(SL, SR, Bitonic),
+  % Phase 2 : fusion
+  bitonic_merge(Dir, Bitonic,
+                Sorted).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{Fusion bitonique}
+\begin{lstlisting}
+:- pred bitonic_merge(
+  direction::in,
+  list(int)::in,
+  list(int)::out) is det.
+
+bitonic_merge(_, [], []).
+bitonic_merge(_, [X], [X]).
+bitonic_merge(Dir, List, Res) :-
+  length(List, N),
+  Half = N / 2,
+  split(List, Half, L, R),
+  compare_and_swap(
+    Dir, L, R, NL, NR),
+  bitonic_merge(Dir, NL, ML),
+  bitonic_merge(Dir, NR, MR),
+  append(ML, MR, Res).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faChartBar\quad Complexité du tri bitonique}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[scale=0.75]
+        \begin{axis}[
+          xlabel={Taille $n$},
+          ylabel={Opérations},
+          xmin=0, xmax=260,
+          ymin=0, ymax=50000,
+          xtick={64,128,256},
+          legend pos=north west,
+          legend style={font=\tiny},
+          grid=major, grid style={gray!20},
+          width=7cm, height=6cm,
+          tick label style={font=\tiny},
+          label style={font=\small},
+          title style={font=\small},
+          title={Comparaison des complexités}
+        ]
+          % O(n log^2 n) - Bitonique
+          \addplot[MercuryBlue,very thick,domain=2:256,samples=60]
+            {x * (ln(x)/ln(2))^2};
+          \addlegendentry{$\Oh{n\log^2 n}$ Bitonique}
+          % O(n log n) - Merge sort
+          \addplot[BlockGreen,thick,dashed,domain=2:256,samples=60]
+            {x * ln(x)/ln(2)};
+          \addlegendentry{$\Oh{n\log n}$ Fusion}
+          % O(n^2) - Bulles
+          \addplot[BlockOrange,thick,dotted,domain=2:220,samples=60]
+            {x^2/50};
+          \addlegendentry{$\Oh{n^2}$ Bulles}
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{block}{Tableau comparatif}
+        \scriptsize
+        \begin{tabular}{lcc}
+          \toprule
+          \textbf{Algo} & \textbf{Séq.} & \textbf{Par.} \\
+          \midrule
+          Bitonique  & $\Oh{n\log^2 n}$ & $\Oh{\log^2 n}$ \\
+          Fusion     & $\Oh{n\log n}$   & $\Oh{\log n}$   \\
+          Rapide     & $\Oh{n\log n}$   & $\Oh{n}$        \\
+          Bulles     & $\Oh{n^2}$       & $\Oh{n}$        \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+      \vspace{0.4em}
+      \begin{alertblock}{Atout majeur}
+        \textbf{Parallélisme maximal} :\\
+        $\Oh{\log^2 n}$ étapes\\
+        $\Rightarrow$ optimal pour GPU/FPGA
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%============================================================
+\section{Minage de Blockchain}
+%============================================================
+
+\begin{frame}{\faLink\quad Architecture d'une Blockchain}
+  \begin{center}
+  \begin{tikzpicture}[
+    bloc/.style={rectangle, rounded corners=4pt,
+                 minimum width=2.8cm, minimum height=2.2cm,
+                 draw=MercuryBlue, fill=LightBlue,
+                 line width=1.2pt, align=center, font=\scriptsize},
+    arr/.style={->, thick, MercuryBlue}
+  ]
+    \node[bloc,fill=LightGreen,draw=BlockGreen] (g) at (0,0) {
+      \textbf{Bloc \#0}\\
+      \textit{Genesis}\\
+      Nonce: 0\\
+      Hash: \texttt{00ab1f}\\
+      Prev: \texttt{000000}
+    };
+    \node[bloc] (b1) at (4,0) {
+      \textbf{Bloc \#1}\\
+      \textit{Alice→Bob}\\
+      Nonce: 142\\
+      Hash: \texttt{00f3a8}\\
+      Prev: \texttt{00ab1f}
+    };
+    \node[bloc] (b2) at (8,0) {
+      \textbf{Bloc \#2}\\
+      \textit{Bob→Carol}\\
+      Nonce: 387\\
+      Hash: \texttt{00d7c2}\\
+      Prev: \texttt{00f3a8}
+    };
+    \node[bloc] (b3) at (12,0) {
+      \textbf{Bloc \#3}\\
+      \textit{Carol→Dave}\\
+      Nonce: 256\\
+      Hash: \texttt{00e1b9}\\
+      Prev: \texttt{00d7c2}
+    };
+    \draw[arr] (g.east) -- node[above,font=\tiny,MercuryCyan]
+      {prev\_hash} (b1.west);
+    \draw[arr] (b1.east) -- node[above,font=\tiny,MercuryCyan]
+      {prev\_hash} (b2.west);
+    \draw[arr] (b2.east) -- node[above,font=\tiny,MercuryCyan]
+      {prev\_hash} (b3.west);
+
+    \node[below=0.3cm of b1, font=\scriptsize,
+          color=BlockOrange, align=center]
+      {Difficulté : hash\\commence par "00"};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.2em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Propriété d'immuabilité}
+        Modifier un bloc change son hash
+        $\Rightarrow$ invalide \textbf{tous} les blocs suivants
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Proof-of-Work}
+        Trouver $n$ (nonce) tel que :
+        $$\text{Hash}(\text{index}\|\text{data}\|n\|\text{prev}) \prec \text{cible}$$
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}[fragile]{\faCode\quad Types de données en Mercury}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \begin{exampleblock}{Définition du type bloc}
+\begin{lstlisting}
+% Type algebrique pour un bloc
+:- type block
+    --->    block(
+        b_index     :: int,
+        b_data      :: string,
+        b_nonce     :: int,
+        b_hash      :: string,
+        b_prev_hash :: string
+    ).
+
+% Blockchain = liste de blocs
+:- type blockchain == list(block).
+
+% Difficulte = nb de zeros requis
+:- type difficulty == int.
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{Accès aux champs}
+\begin{lstlisting}
+% Acces via nom du champ (^)
+get_hash(B) = B^b_hash.
+get_index(B) = B^b_index.
+
+% Creation d'un bloc
+nouveau_bloc(Idx, Data,
+             Nonce, Hash,
+             Prev) =
+  block(Idx, Data,
+        Nonce, Hash, Prev).
+
+% Bloc genesis
+genesis = block(
+  0,
+  "Genesis Block",
+  0,
+  hash_genesis,
+  "000000000000").
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}[fragile]{\faHammer\quad Algorithme de minage en Mercury}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \begin{exampleblock}{Minage (recherche du nonce)}
+\begin{lstlisting}
+:- pred mine_nonce(
+  int::in,       % index
+  string::in,    % donnees
+  string::in,    % prev_hash
+  difficulty::in,
+  int::in,       % nonce essai
+  int::out,      % nonce trouve
+  string::out    % hash valide
+) is det.
+
+mine_nonce(Idx,Data,Prev,Diff,
+           Try, Nonce, Hash) :-
+  H = hash_block(Idx,Data,
+                 Try, Prev),
+  ( meets_difficulty(H, Diff) ->
+    Nonce = Try,
+    Hash  = H
+  ;
+    mine_nonce(Idx, Data, Prev,
+      Diff, Try+1, Nonce, Hash)
+  ).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{Vérification difficulté}
+\begin{lstlisting}
+:- pred meets_difficulty(
+  string::in,
+  difficulty::in) is semidet.
+
+meets_difficulty(Hash, Diff) :-
+  Diff > 0,
+  string.left(Hash, Diff)
+    = Prefix,
+  all_zeros(Prefix).
+
+:- pred all_zeros(
+  string::in) is semidet.
+
+all_zeros(S) :-
+  string.to_char_list(S, Cs),
+  all_zero_chars(Cs).
+
+all_zero_chars([]).
+all_zero_chars(['0'|Rest]) :-
+  all_zero_chars(Rest).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}[fragile]{\faShieldAlt\quad Validation et sécurité}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \begin{exampleblock}{Validation de la chaîne}
+\begin{lstlisting}
+:- pred validate_chain(
+  blockchain::in,
+  bool::out) is det.
+
+validate_chain([], yes).
+validate_chain([_], yes).
+validate_chain([B1,B2|R], V) :-
+  Expected = hash_block(
+    B2^b_index,
+    B2^b_data,
+    B2^b_nonce,
+    B2^b_prev_hash),
+  ( Expected = B2^b_hash,
+    B2^b_hash = B1^b_prev_hash
+    ->
+    validate_chain([B2|R], V)
+  ;
+    V = no
+  ).
+\end{lstlisting}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{Détection d'attaque}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.65]
+          \node[draw=BlockGreen,fill=LightGreen,rounded corners,
+                minimum width=2cm, align=center, font=\tiny] (b1)
+            at (0,2) {Bloc \#1\\Hash: 00f3};
+          \node[draw=MercuryBlue,fill=LightBlue,rounded corners,
+                minimum width=2cm, align=center, font=\tiny] (b2)
+            at (3,2) {Bloc \#2\\Prev: 00f3};
+          \draw[->,thick,BlockGreen] (b1)--(b2);
+
+          \node[draw=BlockOrange,fill=LightOrange,rounded corners,
+                minimum width=2cm, align=center, font=\tiny] (at)
+            at (0,0) {Bloc \#1\\(falsifié)\\Hash: ff99};
+          \node[draw=red,fill=red!10,rounded corners,
+                minimum width=2cm, align=center, font=\tiny] (b2b)
+            at (3,0) {Bloc \#2\\Prev: 00f3\\$\neq$ ff99};
+          \draw[->,thick,BlockOrange] (at)--(b2b);
+          \node[right,font=\tiny,red] at (4.2,0) {\faTimesCircle};
+
+          \node[above,font=\tiny] at (1.5,2.5) {Chaîne valide};
+          \node[below,font=\tiny,red] at (1.5,-0.5) {Attaque détectée};
+        \end{tikzpicture}
+        \end{center}
+      \end{block}
+      \begin{alertblock}{Résultat Mercury}
+        \code{validate\_chain} $\Rightarrow$ \code{no}\\
+        L'attaque est \textbf{automatiquement rejetée}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faChartBar\quad Analyse de la difficulté PoW}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \begin{center}
+      \begin{tikzpicture}[scale=0.75]
+        \begin{axis}[
+          xlabel={Difficulté $d$ (nb de zéros)},
+          ylabel={Nonces essayés (moy.)},
+          ymode=log, log basis y=10,
+          xmin=1, xmax=6,
+          xtick={1,2,3,4,5,6},
+          grid=major, grid style={gray!20},
+          width=7.5cm, height=5.5cm,
+          tick label style={font=\tiny},
+          label style={font=\small},
+          title={Coût du minage vs Difficulté},
+          title style={font=\small}
+        ]
+          \addplot[MercuryBlue,very thick,mark=*,
+                   mark options={fill=MercuryBlue}]
+            coordinates {(1,16)(2,256)(3,4096)(4,65536)(5,1048576)};
+          \addplot[BlockOrange,dashed,domain=1:5,samples=10]
+            {16^x};
+        \end{axis}
+      \end{tikzpicture}
+      \end{center}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{block}{Propriétés PoW}
+        Pour une difficulté $d$ :
+        \begin{itemize}
+          \item \textbf{Minage} : $\Oh{16^d}$ essais
+          \item \textbf{Vérification} : $\Oh{1}$ — immédiate
+          \item \textbf{Asymétrie} : coûteux à créer, rapide à vérifier
+        \end{itemize}
+      \end{block}
+      \vspace{0.3em}
+      \begin{exampleblock}{Bitcoin (réel)}
+        \begin{itemize}
+          \item Difficulté $\approx$ 20 zéros hex
+          \item $\approx 10^{23}$ hashs/bloc
+          \item Ajustée toutes les 2016 blocs
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%============================================================
+\section{Comparaison et Bilan}
+%============================================================
+
+\begin{frame}{\faBalanceScale\quad Comparaison des deux algorithmes}
+  \begin{center}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Critère} & \textbf{Tri Bitonique} & \textbf{Minage Blockchain} \\
+    \midrule
+    Paradigme Mercury &
+      Récursion pure & Types algébriques + récursion \\
+    Déterminisme &
+      \code{det} strict & \code{det} (terminaison garantie) \\
+    Complexité &
+      $\Oh{n\log^2 n}$ & $\Oh{16^d}$ en moyenne \\
+    Mémoire &
+      $\Oh{n}$ & $\Oh{n}$ blocs \\
+    Parallélisable &
+      \faCheckCircle\color{BlockGreen}~Oui (natif) &
+      \faCheckCircle\color{BlockGreen}~Oui (mining pools) \\
+    Pureté Mercury &
+      Totalement pure & Pure + IO isolée \\
+    Usage réel &
+      GPU/FPGA/HPC & Bitcoin, Ethereum \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.5em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{\faStar\quad Atout Mercury : Tri bitonique}
+        Le système de modes garantit que
+        \code{split/4} et \code{compare\_and\_swap/5}
+        sont \emph{correctement typés et modés} à la compilation.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{\faStar\quad Atout Mercury : Blockchain}
+        \code{io::di, io::uo} isole parfaitement les effets
+        d'affichage de la logique pure de validation et de minage.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faTerminal\quad Guide de compilation}
+  \begin{block}{Prérequis}
+    \begin{itemize}
+      \item \mercury{} 14.01+ installé (\texttt{mmc} dans le PATH)
+      \item Fichiers : \texttt{bitonic\_sort.m} et
+            \texttt{blockchain\_mining.m}
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.4em}
+  \begin{exampleblock}{Commandes de compilation et d'exécution}
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Commande} & \textbf{Description} \\
+      \midrule
+      \texttt{mmc --make bitonic\_sort} &
+        Compiler le tri bitonique \\
+      \texttt{./bitonic\_sort} &
+        Exécuter le tri bitonique \\
+      \texttt{mmc --make blockchain\_mining} &
+        Compiler le minage \\
+      \texttt{./blockchain\_mining} &
+        Exécuter le minage \\
+      \texttt{mmc -O2 --make bitonic\_sort} &
+        Compilation optimisée \\
+      \bottomrule
+    \end{tabular}
+  \end{exampleblock}
+
+  \vspace{0.3em}
+  \begin{alertblock}{Note importante}
+    La taille $n$ pour le tri bitonique doit être une
+    \textbf{puissance de 2} ($n = 2^k$). Pour d'autres tailles,
+    compléter avec des valeurs sentinelles ($+\infty$).
+  \end{alertblock}
+\end{frame}
+
+%------------------------------------------------------------
+\begin{frame}{\faFlagCheckered\quad Conclusion}
+  \begin{block}{Ce que nous avons réalisé}
+    \begin{itemize}
+      \item[\faCheckCircle] \textbf{Tri bitonique} complet en Mercury :
+        5 cas de test, vérification automatique, $\Oh{\log^2 n}$ parallèle
+      \item[\faCheckCircle] \textbf{Minage Blockchain} avec PoW :
+        4 blocs minés, validation d'intégrité, simulation d'attaque détectée
+      \item[\faCheckCircle] \textbf{Mercury} : typage fort, modes déclarés,
+        pureté garantie, séparation IO/logique
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.4em}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Points forts de Mercury}
+        \begin{itemize}
+          \item Erreurs détectées à la \emph{compilation}
+          \item Code auto-documenté (modes + déterminisme)
+          \item Performance proche du C
+          \item Récursion terminale optimisée
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{Extensions possibles}
+        \begin{itemize}
+          \item SHA-256 réel via FFI C
+          \item Tri bitonique sur flottants
+          \item Réseau P2P de blockchain
+          \item Parallélisme avec \code{par\_conj}
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.6em}
+  \begin{center}
+    \large\color{MercuryBlue}
+    \textbf{\faCode\quad Merci de votre attention !}\\[0.3em]
+    \normalsize\color{gray}
+    INF322 — Université de Yaoundé I
+    \quad$\cdot$\quad
+    \mercury{} 14.01+
+  \end{center}
+\end{frame}
+
+%------------------------------------------------------------
+% DIAPOSITIVES ANNEXES
+%------------------------------------------------------------
+\appendix
+
+\begin{frame}[fragile]{\faTools\quad Annexe : Fonction de hachage simulée}
+  \begin{exampleblock}{Hash polynomial (Mercury — sans SHA-256 natif)}
+\begin{lstlisting}
+% Hash polynomial deterministe sur une chaine
+:- func compute_hash(string) = string.
+
+compute_hash(Input) = HashStr :-
+    string.to_char_list(Input, Chars),
+    poly_hash(Chars, 0, 0, RawHash),
+    AbsHash = abs(RawHash) mod 0xFFFFFFFF,
+    HashStr = int_to_hex8(AbsHash).
+
+:- pred poly_hash(list(char)::in, int::in,
+                  int::in, int::out) is det.
+poly_hash([], _Pos, Acc, Acc).
+poly_hash([C|Cs], Pos, Acc, Result) :-
+    char.to_int(C, Code),
+    NewAcc = (Acc * 1000003
+              + Code * int.pow(31, Pos mod 8))
+             mod 0x7FFFFFFF,
+    poly_hash(Cs, Pos + 1, NewAcc, Result).
+\end{lstlisting}
+  \end{exampleblock}
+  \begin{alertblock}{En production}
+    Utiliser \textbf{SHA-256} via une interface C (FFI Mercury) :
+    \code{:- pragma foreign\_proc("C", sha256(...))}
+  \end{alertblock}
+\end{frame}
+
+\end{document}

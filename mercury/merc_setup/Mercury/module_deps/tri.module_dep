@@ -1,0 +1,14 @@
+module(2, "tri.m",
+	tri,
+	{},
+	{builtin, io, private_builtin},
+	{bool, int, list, string},
+	{},
+	{},
+	{},
+	{},
+	{},
+	no_foreign_export,
+	no_main,
+	{}
+).

@@ -1,0 +1,3 @@
+:- module tri.
+:- interface.
+:- type_representation(direction, is_eqv_to(bool)).

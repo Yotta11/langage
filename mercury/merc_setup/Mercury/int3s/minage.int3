@@ -1,0 +1,3 @@
+:- module minage.
+:- interface.
+:- type_representation(blockchain, is_eqv_to(list(block))).
