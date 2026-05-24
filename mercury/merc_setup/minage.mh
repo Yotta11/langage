@@ -21,7 +21,6 @@ extern "C" {
 #include "mercury_deep_profiling.h"
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif
