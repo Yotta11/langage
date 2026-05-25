@@ -4,6 +4,7 @@
 //   execution : scala a
 // ============================================================
 
+
 import scala.util.Random
 
 object a {
