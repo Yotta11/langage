@@ -4,7 +4,6 @@
 //   execution : scala a
 // ============================================================
 
-
 import scala.util.Random
 
 object a {
@@ -20,7 +19,7 @@ object a {
   }
 
   // ──────────────────────────────────────────────────────────
-  //  BITONIC MERGE
+  //  BITONIQUE MERGE
   // ──────────────────────────────────────────────────────────
 
   def bitonicMerge[T](arr: Array[T], lo: Int, cnt: Int, ascending: Boolean)
@@ -36,7 +35,7 @@ object a {
   }
 
   // ──────────────────────────────────────────────────────────
-  //  BITONIC SORT
+  //  BITONIQUE SORT
   // ──────────────────────────────────────────────────────────
 
   def bitonicSort[T](arr: Array[T], lo: Int, cnt: Int, ascending: Boolean)
