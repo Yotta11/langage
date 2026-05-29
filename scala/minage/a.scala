@@ -9,7 +9,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import scala.annotation.tailrec
 
-
 // ─────────────────────────────────────────────────────────────
 //  MODELE DE DONNEES
 // ─────────────────────────────────────────────────────────────
